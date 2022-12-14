@@ -3,11 +3,12 @@ name: "Deploy to Vercel"
 on:
   workflow_call:
     secrets:
-      GITHUB_TOKEN: # 조직 공통
+      # 조직 단위로 정의된 secret 이름과 동일한 parameter로 사용하면 에러가 발생하므로 'COMMON_'을 추가했다.
+      COMMON_GITHUB_TOKEN: # 조직 공통
         required: true
-      VERCEL_TEAM_ID: # 조직 공통
+      COMMON_VERCEL_TEAM_ID: # 조직 공통
         required: true
-      VERCEL_DEPLOYMENT_TOKEN: # 조직 공통
+      COMMON_VERCEL_DEPLOYMENT_TOKEN: # 조직 공통
         required: true
       VERCEL_PROJECT_NAME_BETA:
         required: true
@@ -16,9 +17,9 @@ on:
 
 # secrets을 직접 사용하지 않고 env를 통해 사용함으로써 이 action이 어떤 secret값을 필요로 하는지 한 눈에 볼 수 있도록 한다.
 env:
-  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # 조직 공통
-  VERCEL_TEAM_ID: ${{ secrets.VERCEL_TEAM_ID }} # 조직 공통
-  VERCEL_DEPLOYMENT_TOKEN: ${{ secrets.VERCEL_DEPLOYMENT_TOKEN }} # 조직 공통
+  GITHUB_TOKEN: ${{ secrets.COMMON_GITHUB_TOKEN }} # 조직 공통
+  VERCEL_TEAM_ID: ${{ secrets.COMMON_VERCEL_TEAM_ID }} # 조직 공통
+  VERCEL_DEPLOYMENT_TOKEN: ${{ secrets.COMMON_VERCEL_DEPLOYMENT_TOKEN }} # 조직 공통
   VERCEL_PROJECT_NAME_BETA: ${{ secrets.VERCEL_PROJECT_NAME_BETA }} # 프로젝트별로 repository에서 지정해줘야 한다.
   VERCEL_PROJECT_NAME_PROD: ${{ secrets.VERCEL_PROJECT_NAME_PROD }} # 프로젝트별로 repository에서 지정해줘야 한다.
   MESSAGE_FAILURE: Vercel 배포에 실패했습니다. Github Actions 로그를 확인해주세요.
