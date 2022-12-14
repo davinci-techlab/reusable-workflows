@@ -14,10 +14,6 @@ on:
         required: true
       VERCEL_PROJECT_NAME_PROD:
         required: true
-      BRANCH_NAME_BETA:
-        required: true
-      BRANCH_NAME_PROD:
-        required: true
 
 # secrets을 직접 사용하지 않고 env를 통해 사용함으로써 이 action이 어떤 secret값을 필요로 하는지 한 눈에 볼 수 있도록 한다.
 env:
@@ -26,27 +22,11 @@ env:
   VERCEL_DEPLOYMENT_TOKEN: ${{ secrets.COMMON_VERCEL_DEPLOYMENT_TOKEN }} # 조직 공통
   VERCEL_PROJECT_NAME_BETA: ${{ secrets.VERCEL_PROJECT_NAME_BETA }} # 프로젝트별로 repository에서 지정해줘야 한다.
   VERCEL_PROJECT_NAME_PROD: ${{ secrets.VERCEL_PROJECT_NAME_PROD }} # 프로젝트별로 repository에서 지정해줘야 한다.
-  BRANCH_NAME_BETA: ${{ secrets.BRANCH_NAME_BETA }} # 프로젝트별로 repository에서 지정해줘야 한다.
-  BRANCH_NAME_PROD: ${{ secrets.BRANCH_NAME_PROD }} # 프로젝트별로 repository에서 지정해줘야 한다.
   MESSAGE_FAILURE: Vercel 배포에 실패했습니다. Github Actions 로그를 확인해주세요.
   MESSAGE_SUCCESS: Vercel 배포 API를 호출했습니다. Vercel 플러그인의 댓글을 기다려주세요.
   MESSAGE_SUCCESS_PROD: Vercel 배포 API를 호출했습니다. Preview 배포를 확인하고 이상이 없다면\nInspector에서 \'Promote to Production\'을 수동으로 눌러 실제 환경에 배포하세요.
 
 jobs:
-  build:
-    name: Set outputs for 'if' conditons #https://stackoverflow.com/a/74386472
-    runs-on: ubuntu-latest
-    outputs:
-      branch_name_beta: ${{ steps.init.outputs.branch_name_beta }}
-      branch_name_prod: ${{ steps.init.outputs.branch_name_prod }}
-
-    steps:
-      - name: Environment variables to output
-        id: init
-        run: |
-          echo "branch_name_beta=${{ env.BRANCH_NAME_BETA }}" >> $GITHUB_OUTPUT
-          echo "branch_name_prod=${{ env.BRANCH_NAME_PROD }}" >> $GITHUB_OUTPUT
-
   deploy-preview-beta:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
@@ -90,7 +70,7 @@ jobs:
               body: '✅ \'${{ github.workflow }}\' succeeded: ${{ env.MESSAGE_SUCCESS }}'
             })
   deploy-production-beta:
-    if: github.ref == format('{0}{1}', 'refs/heads/', ${{ needs.build.outputs.branch_name_beta }})
+    if: github.ref == 'refs/heads/beta'
     runs-on: ubuntu-latest
     steps:
       - id: deploy
@@ -133,7 +113,7 @@ jobs:
               body: '✅ \'${{ github.workflow }}\' succeeded: ${{ env.MESSAGE_SUCCESS }}'
             })
   deploy-preview-prod:
-    if: github.ref == format('{0}{1}', 'refs/heads/', ${{ needs.build.outputs.branch_name_prod }})
+    if: github.ref == 'refs/heads/prod'
     runs-on: ubuntu-latest
     steps:
       - id: deploy
