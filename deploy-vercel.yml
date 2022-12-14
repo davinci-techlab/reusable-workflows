@@ -1,0 +1,158 @@
+name: "Deploy to Vercel"
+
+on:
+  workflow_call:
+    secrets:
+      GITHUB_TOKEN: # 조직 공통
+        required: true
+      VERCEL_TEAM_ID: # 조직 공통
+        required: true
+      VERCEL_DEPLOYMENT_TOKEN: # 조직 공통
+        required: true
+      VERCEL_PROJECT_NAME_BETA:
+        required: true
+      VERCEL_PROJECT_NAME_PROD:
+        required: true
+
+# secrets을 직접 사용하지 않고 env를 통해 사용함으로써 이 action이 어떤 secret값을 필요로 하는지 한 눈에 볼 수 있도록 한다.
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # 조직 공통
+  VERCEL_TEAM_ID: ${{ secrets.VERCEL_TEAM_ID }} # 조직 공통
+  VERCEL_DEPLOYMENT_TOKEN: ${{ secrets.VERCEL_DEPLOYMENT_TOKEN }} # 조직 공통
+  VERCEL_PROJECT_NAME_BETA: ${{ secrets.VERCEL_PROJECT_NAME_BETA }} # 프로젝트별로 repository에서 지정해줘야 한다.
+  VERCEL_PROJECT_NAME_PROD: ${{ secrets.VERCEL_PROJECT_NAME_PROD }} # 프로젝트별로 repository에서 지정해줘야 한다.
+  MESSAGE_FAILURE: Vercel 배포에 실패했습니다. Github Actions 로그를 확인해주세요.
+  MESSAGE_SUCCESS: Vercel 배포 API를 호출했습니다. Vercel 플러그인의 댓글을 기다려주세요.
+  MESSAGE_SUCCESS_PROD: Vercel 배포 API를 호출했습니다. Preview 배포를 확인하고 이상이 없다면\nInspector에서 \'Promote to Production\'을 수동으로 눌러 실제 환경에 배포하세요.
+
+jobs:
+  deploy-preview-beta:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - id: deploy
+        run: |
+          curl --fail -X POST "https://api.vercel.com/v13/deployments?teamId=${{ env.VERCEL_TEAM_ID }}" \
+            -H "Content-Type: application/json" \
+            -H "Authorization: Bearer ${{ env.VERCEL_DEPLOYMENT_TOKEN }}" \
+            -d '{
+            "name": "${{ env.VERCEL_PROJECT_NAME_BETA }}",
+            "gitSource": {
+              "type": "github",
+              "org": "${{ github.event.repository.owner.login }}",
+              "repo": "${{ github.event.repository.name }}",
+              "ref": "${{ github.head_ref }}"
+            }
+          }'
+      - name: "Add PR comment when failed"
+        uses: actions/github-script@v5
+        if: failure()
+        with:
+          github-token: ${{env.GITHUB_TOKEN}}
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '❌ \'${{ github.workflow }}\' failed: ${{ env.MESSAGE_FAILURE }}'
+            })
+      - name: "Add PR comment when success"
+        uses: actions/github-script@v5
+        if: success()
+        with:
+          github-token: ${{env.GITHUB_TOKEN}}
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '✅ \'${{ github.workflow }}\' succeeded: ${{ env.MESSAGE_SUCCESS }}'
+            })
+  deploy-production-beta:
+    if: github.ref == 'refs/heads/beta'
+    runs-on: ubuntu-latest
+    steps:
+      - id: deploy
+        run: |
+          curl --fail -X POST "https://api.vercel.com/v13/deployments?teamId=${{ env.VERCEL_TEAM_ID }}" \
+            -H "Content-Type: application/json" \
+            -H "Authorization: Bearer ${{ env.VERCEL_DEPLOYMENT_TOKEN }}" \
+            -d '{
+            "name": "${{ env.VERCEL_PROJECT_NAME_BETA }}",
+            "gitSource": {
+              "type": "github",
+              "org": "${{ github.event.repository.owner.login }}",
+              "repo": "${{ github.event.repository.name }}",
+              "ref": "beta"
+            },
+            "target": "production"
+          }'
+      - name: "Add commit comment when failed"
+        uses: actions/github-script@v5
+        if: failure()
+        with:
+          github-token: ${{env.GITHUB_TOKEN}}
+          script: |
+            github.rest.repos.createCommitComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              commit_sha: '${{ github.sha }}',
+              body: '❌ \'${{ github.workflow }}\' failed: ${{ env.MESSAGE_FAILURE }}'
+            })
+      - name: "Add commit comment when success"
+        uses: actions/github-script@v5
+        if: success()
+        with:
+          github-token: ${{env.GITHUB_TOKEN}}
+          script: |
+            github.rest.repos.createCommitComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              commit_sha: '${{ github.sha }}',
+              body: '✅ \'${{ github.workflow }}\' succeeded: ${{ env.MESSAGE_SUCCESS }}'
+            })
+  deploy-preview-prod:
+    if: github.ref == 'refs/heads/prod'
+    runs-on: ubuntu-latest
+    steps:
+      - id: deploy
+        uses: sergeysova/jq-action@v2
+        with:
+          cmd: |
+            RESPONSE=$(curl --fail -X POST "https://api.vercel.com/v13/deployments?teamId=${{ env.VERCEL_TEAM_ID }}" \
+              -H "Content-Type: application/json" \
+              -H "Authorization: Bearer ${{ env.VERCEL_DEPLOYMENT_TOKEN }}" \
+              -d '{
+              "name": "${{ env.VERCEL_PROJECT_NAME_PROD }}",
+              "gitSource": {
+                "type": "github",
+                "org": "${{ github.event.repository.owner.login }}",
+                "repo": "${{ github.event.repository.name }}",
+                "ref": "prod"
+              }
+            }')
+            echo $RESPONSE | jq -c '{url, inspectorUrl}'
+      - name: "Add commit comment when failed"
+        uses: actions/github-script@v5
+        if: failure()
+        with:
+          github-token: ${{env.GITHUB_TOKEN}}
+          script: |
+            github.rest.repos.createCommitComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              commit_sha: '${{ github.sha }}',
+              body: '❌ \'${{ github.workflow }}\' failed: ${{ env.MESSAGE_FAILURE }}'
+            })
+      - name: "Add commit comment when success"
+        uses: actions/github-script@v5
+        if: success()
+        with:
+          github-token: ${{env.GITHUB_TOKEN}}
+          script: |
+            github.rest.repos.createCommitComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              commit_sha: '${{ github.sha }}',
+              body: '✅ \'${{ github.workflow }}\' succeeded: ${{ env.MESSAGE_SUCCESS_PROD }}\n| Name | Inspect | Preview |\n| :--- | :----- | :------ |\n| **${{ env.VERCEL_PROJECT_NAME_PROD }}** | [Check Inspector](${{ fromJSON(steps.deploy.outputs.value).inspectorUrl }}) | [Visit Preview](https://${{ fromJSON(steps.deploy.outputs.value).url }})'
+            })
