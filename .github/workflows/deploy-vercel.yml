@@ -3,6 +3,12 @@ name: "Deploy to Vercel"
 on:
   workflow_call:
     secrets:
+      GITHUB_TOKEN: # 조직 공통
+        required: true
+      VERCEL_TEAM_ID: # 조직 공통
+        required: true
+      VERCEL_DEPLOYMENT_TOKEN: # 조직 공통
+        required: true
       VERCEL_PROJECT_NAME_BETA:
         required: true
       VERCEL_PROJECT_NAME_PROD:
