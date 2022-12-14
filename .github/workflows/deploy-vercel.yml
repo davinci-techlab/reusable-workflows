@@ -33,6 +33,20 @@ env:
   MESSAGE_SUCCESS_PROD: Vercel 배포 API를 호출했습니다. Preview 배포를 확인하고 이상이 없다면\nInspector에서 \'Promote to Production\'을 수동으로 눌러 실제 환경에 배포하세요.
 
 jobs:
+  build:
+    name: Set outputs for 'if' conditons #https://stackoverflow.com/a/74386472
+    runs-on: ubuntu-latest
+    outputs:
+      branch_name_beta: ${{ steps.init.outputs.branch_name_beta }}
+      branch_name_prod: ${{ steps.init.outputs.branch_name_prod }}
+
+    steps:
+      - name: Environment variables to output
+        id: init
+        run: |
+          echo "branch_name_beta=${{ env.BRANCH_NAME_BETA }}" >> $GITHUB_OUTPUT
+          echo "branch_name_prod=${{ env.BRANCH_NAME_PROD }}" >> $GITHUB_OUTPUT
+
   deploy-preview-beta:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
@@ -76,7 +90,7 @@ jobs:
               body: '✅ \'${{ github.workflow }}\' succeeded: ${{ env.MESSAGE_SUCCESS }}'
             })
   deploy-production-beta:
-    if: github.ref == format('{0}{1}', 'refs/heads/', env.BRANCH_NAME_BETA)
+    if: github.ref == format('{0}{1}', 'refs/heads/', ${{ needs.build.outputs.branch_name_beta }})
     runs-on: ubuntu-latest
     steps:
       - id: deploy
@@ -119,7 +133,7 @@ jobs:
               body: '✅ \'${{ github.workflow }}\' succeeded: ${{ env.MESSAGE_SUCCESS }}'
             })
   deploy-preview-prod:
-    if: github.ref == format('{0}{1}', 'refs/heads/', env.BRANCH_NAME_PROD)
+    if: github.ref == format('{0}{1}', 'refs/heads/', ${{ needs.build.outputs.branch_name_prod }})
     runs-on: ubuntu-latest
     steps:
       - id: deploy
