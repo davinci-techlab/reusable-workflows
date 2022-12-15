@@ -4,9 +4,18 @@ name: Qodana
 
 on:
   workflow_call:
+    inputs:
+      QODANA_REPORT_URL:
+        description: 'Qodana 리포트 링크. 예) https://qodana.cloud/projects/p5Elp'
+        required: true
+        type: string
     secrets:
       QODANA_TOKEN:
         required: true
+
+env:
+  SUCCESS_COMMENT_BODY: '✅ Qodana에서 정적분석을 끝냈습니다: [Qodana 분석 결과 조회](${{ inputs.QODANA_REPORT_URL }})'
+  FAILURE_COMMENT_BODY: '❌ Qodana 정적분석에 실패했습니다. GitHub Actions 로그를 참고하세요.'
 
 jobs:
   qodana:
@@ -19,3 +28,51 @@ jobs:
         uses: JetBrains/qodana-action@v2022.3.0
         env:
           QODANA_TOKEN: ${{ secrets.QODANA_TOKEN }}
+      - name: "Add pull request comment when success"
+        if: ${{ github.event_name == 'pull_request' && success() }}
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '${{ env.SUCCESS_COMMENT_BODY }}'
+            })
+      - name: "Add pull request comment when failure"
+        if: ${{ github.event_name == 'pull_request' && failure() }}
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '${{ env.FAILURE_COMMENT_BODY }}'
+            })
+      - name: "Add commit comment when success"
+        if: ${{ github.event_name != 'pull_request' && success() }}
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            github.rest.repos.createCommitComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              commit_sha: '${{ github.sha }}',
+              body: '${{ env.SUCCESS_COMMENT_BODY }}'
+            })
+      - name: "Add commit comment when failure"
+          if: ${{ github.event_name != 'pull_request' && failure() }}
+          uses: actions/github-script@v6
+          with:
+            github-token: ${{ secrets.GITHUB_TOKEN }}
+            script: |
+              github.rest.repos.createCommitComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                commit_sha: '${{ github.sha }}',
+                body: '${{ env.FAILURE_COMMENT_BODY }}'
+              })
