@@ -1,0 +1,21 @@
+# 파일 이름을 qodana.yml으로 해버리면 IDE에서 특별취급을 해버려서 qodana-workflow.yml으로 변경했다.
+
+name: Qodana
+
+on:
+  workflow_call:
+    secrets:
+      QODANA_TOKEN:
+        required: true
+
+jobs:
+  qodana:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: 'Qodana Scan'
+        uses: JetBrains/qodana-action@v2022.3.0
+        env:
+          QODANA_TOKEN: ${{ secrets.QODANA_TOKEN }}
