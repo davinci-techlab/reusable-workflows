@@ -2,6 +2,12 @@ name: Sonarqube
 
 on:
   workflow_call:
+    inputs:
+      install_dependency:
+        description: '의존성 설치 커맨드'
+        default: 'npm install'
+        required: false
+        type: string
     secrets:
       SONAR_HOST_URL:
         required: true
@@ -17,7 +23,7 @@ jobs:
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
-      - run: npm install
+      - run: ${{ inputs.install_dependency }}
       - name: Scan code
         uses: vtex/action-sonarqube@main
         with:
