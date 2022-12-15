@@ -65,14 +65,14 @@ jobs:
               body: '${{ env.SUCCESS_COMMENT_BODY }}'
             })
       - name: "Add commit comment when failure"
-          if: ${{ github.event_name != 'pull_request' && failure() }}
-          uses: actions/github-script@v6
-          with:
-            github-token: ${{ secrets.GITHUB_TOKEN }}
-            script: |
-              github.rest.repos.createCommitComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                commit_sha: '${{ github.sha }}',
-                body: '${{ env.FAILURE_COMMENT_BODY }}'
-              })
+        if: ${{ github.event_name != 'pull_request' && failure() }}
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            github.rest.repos.createCommitComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              commit_sha: '${{ github.sha }}',
+              body: '${{ env.FAILURE_COMMENT_BODY }}'
+            })
