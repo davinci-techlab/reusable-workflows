@@ -96,7 +96,7 @@ jobs:
               "type": "github",
               "org": "${{ github.event.repository.owner.login }}",
               "repo": "${{ github.event.repository.name }}",
-              "ref": "beta"
+              "ref": "${{ env.VERCEL_PROJECT_NAME_BETA }}"
             },
             "target": "production"
           }'
@@ -141,7 +141,7 @@ jobs:
                 "type": "github",
                 "org": "${{ github.event.repository.owner.login }}",
                 "repo": "${{ github.event.repository.name }}",
-                "ref": "prod"
+                "ref": "${{ env.VERCEL_PROJECT_NAME_PROD }}"
               }
             }')
             echo $RESPONSE | jq -c '{url, inspectorUrl}'
