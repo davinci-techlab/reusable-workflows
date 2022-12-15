@@ -58,7 +58,7 @@ jobs:
             }
           }'
       - name: "Add PR comment when failed"
-        uses: actions/github-script@v5
+        uses: actions/github-script@v6
         if: failure()
         with:
           github-token: ${{env.GITHUB_TOKEN}}
@@ -70,7 +70,7 @@ jobs:
               body: '❌ \'${{ github.workflow }}\' failed: ${{ env.MESSAGE_FAILURE }}'
             })
       - name: "Add PR comment when success"
-        uses: actions/github-script@v5
+        uses: actions/github-script@v6
         if: success()
         with:
           github-token: ${{env.GITHUB_TOKEN}}
@@ -101,7 +101,7 @@ jobs:
             "target": "production"
           }'
       - name: "Add commit comment when failed"
-        uses: actions/github-script@v5
+        uses: actions/github-script@v6
         if: failure()
         with:
           github-token: ${{env.GITHUB_TOKEN}}
@@ -113,7 +113,7 @@ jobs:
               body: '❌ \'${{ github.workflow }}\' failed: ${{ env.MESSAGE_FAILURE }}'
             })
       - name: "Add commit comment when success"
-        uses: actions/github-script@v5
+        uses: actions/github-script@v6
         if: success()
         with:
           github-token: ${{env.GITHUB_TOKEN}}
@@ -146,7 +146,7 @@ jobs:
             }')
             echo $RESPONSE | jq -c '{url, inspectorUrl}'
       - name: "Add commit comment when failed"
-        uses: actions/github-script@v5
+        uses: actions/github-script@v6
         if: failure()
         with:
           github-token: ${{env.GITHUB_TOKEN}}
@@ -158,7 +158,7 @@ jobs:
               body: '❌ \'${{ github.workflow }}\' failed: ${{ env.MESSAGE_FAILURE }}'
             })
       - name: "Add commit comment when success"
-        uses: actions/github-script@v5
+        uses: actions/github-script@v6
         if: success()
         with:
           github-token: ${{env.GITHUB_TOKEN}}
