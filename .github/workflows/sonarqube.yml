@@ -1,0 +1,26 @@
+name: Sonarqube
+
+on:
+  workflow_call:
+    secrets:
+      SONAR_HOST_URL:
+        required: true
+      SONAR_TOKEN:
+        required: true
+
+jobs:
+  SonarScanner:
+    runs-on: ubuntu-latest
+    name: Sonar Scanner
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - run: npm install
+      - name: Scan code
+        uses: vtex/action-sonarqube@main
+        with:
+          githubToken: ${{ secrets.GITHUB_TOKEN }} # https://docs.github.com/en/actions/reference/authentication-in-a-workflow#about-the-github_token-secret
+          host: ${{ secrets.SONAR_HOST_URL }} # Variable set in the Github Secrets
+          token: ${{ secrets.SONAR_TOKEN }} # Variable set in the Github Secrets
