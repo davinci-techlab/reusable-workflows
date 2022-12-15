@@ -4,15 +4,21 @@ on:
   workflow_call:
     inputs:
       BRANCH_NAME_BETA:
+        description: '베타 환경에 배포하기 위한 브랜치 이름'
+        default: 'beta'
         required: false
         type: string
       BRANCH_NAME_PROD:
+        description: '운영 환경에 배포하기 위한 브랜치 이름'
+        default: 'prod'
         required: false
         type: string
       VERCEL_PROJECT_NAME_BETA:
+        description: 'Vercel 베타 프로젝트 이름'
         required: true
         type: string
       VERCEL_PROJECT_NAME_PROD:
+        description: 'Vercel 운영 프로젝트 이름'
         required: true
         type: string
     secrets:
@@ -76,7 +82,7 @@ jobs:
               body: '✅ \'${{ github.workflow }}\' succeeded: ${{ env.MESSAGE_SUCCESS }}'
             })
   deploy-production-beta:
-    if: ${{ github.ref == format('{0}{1}', 'refs/heads/', inputs.BRANCH_NAME_BETA || 'beta') }}
+    if: ${{ github.ref == format('{0}{1}', 'refs/heads/', inputs.BRANCH_NAME_BETA) }}
     runs-on: ubuntu-latest
     steps:
       - id: deploy
@@ -119,7 +125,7 @@ jobs:
               body: '✅ \'${{ github.workflow }}\' succeeded: ${{ env.MESSAGE_SUCCESS }}'
             })
   deploy-preview-prod:
-    if: ${{ github.ref == format('{0}{1}', 'refs/heads/', inputs.BRANCH_NAME_PROD || 'prod') }}
+    if: ${{ github.ref == format('{0}{1}', 'refs/heads/', inputs.BRANCH_NAME_PROD) }}
     runs-on: ubuntu-latest
     steps:
       - id: deploy
