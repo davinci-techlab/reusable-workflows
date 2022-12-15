@@ -71,7 +71,7 @@ jobs:
               body: '✅ \'${{ github.workflow }}\' succeeded: ${{ env.MESSAGE_SUCCESS }}'
             })
   deploy-production-beta:
-    if: github.ref == 'refs/heads/beta'
+    if: github.ref == format('{0}{1}', 'refs/heads/', ${{ secrets.BRANCH_NAME_BETA || 'beta' }})
     runs-on: ubuntu-latest
     steps:
       - id: deploy
@@ -114,7 +114,7 @@ jobs:
               body: '✅ \'${{ github.workflow }}\' succeeded: ${{ env.MESSAGE_SUCCESS }}'
             })
   deploy-preview-prod:
-    if: github.ref == 'refs/heads/prod'
+    if: github.ref == format('{0}{1}', 'refs/heads/', ${{ secrets.BRANCH_NAME_BETA || 'prod' }})
     runs-on: ubuntu-latest
     steps:
       - id: deploy
