@@ -5,7 +5,7 @@ name: Qodana
 on:
   workflow_call:
     inputs:
-      QODANA_REPORT_URL:
+      report_url:
         description: 'Qodana 리포트 링크. 예) https://qodana.cloud/projects/p5Elp'
         required: true
         type: string
@@ -14,7 +14,7 @@ on:
         required: true
 
 env:
-  SUCCESS_COMMENT_BODY: '✅ Qodana에서 정적분석을 끝냈습니다: [Qodana 분석 결과 조회](${{ inputs.QODANA_REPORT_URL }})'
+  SUCCESS_COMMENT_BODY: '✅ Qodana에서 정적분석을 끝냈습니다: [Qodana 분석 결과 조회](${{ inputs.report_url }})'
   FAILURE_COMMENT_BODY: '❌ Qodana 정적분석에 실패했습니다. GitHub Actions 로그를 참고하세요.'
 
 jobs:
