@@ -1,8 +1,7 @@
 name: Link Jira issue key in PR
 
 on:
-  pull_request:
-    types: [opened]
+  workflow_call:
 
 jobs:
   link_jira_issue:  # 작업 이름
