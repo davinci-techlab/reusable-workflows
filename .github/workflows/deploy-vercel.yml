@@ -34,8 +34,6 @@ env:
   VERCEL_DEPLOYMENT_TOKEN: ${{ secrets.VERCEL_DEPLOYMENT_TOKEN }} # 조직 공통
   VERCEL_PROJECT_NAME_BETA: ${{ inputs.VERCEL_PROJECT_NAME_BETA }} # 프로젝트별로 repository에서 지정해줘야 한다.
   VERCEL_PROJECT_NAME_PROD: ${{ inputs.VERCEL_PROJECT_NAME_PROD }} # 프로젝트별로 repository에서 지정해줘야 한다.
-  BRANCH_NAME_BETA: ${{ inputs.BRANCH_NAME_BETA }}
-  BRANCH_NAME_PROD: ${{ inputs.BRANCH_NAME_PROD }}
   MESSAGE_FAILURE: Vercel 배포에 실패했습니다. Github Actions 로그를 확인해주세요.
   MESSAGE_SUCCESS: Vercel 배포 API를 호출했습니다. Vercel 플러그인의 댓글을 기다려주세요.
   MESSAGE_SUCCESS_PROD: Vercel 배포 API를 호출했습니다. Preview 배포를 확인하고 이상이 없다면\nInspector에서 \'Promote to Production\'을 수동으로 눌러 실제 환경에 배포하세요.
@@ -84,7 +82,7 @@ jobs:
               body: '✅ \'${{ github.workflow }}\' succeeded: ${{ env.MESSAGE_SUCCESS }}'
             })
   deploy-production-beta:
-    if: ${{ github.ref == format('{0}{1}', 'refs/heads/', env.BRANCH_NAME_BETA) }}
+    if: ${{ github.ref == format('{0}{1}', 'refs/heads/', inputs.BRANCH_NAME_BETA) }}
     runs-on: ubuntu-latest
     steps:
       - id: deploy
@@ -98,7 +96,7 @@ jobs:
               "type": "github",
               "org": "${{ github.event.repository.owner.login }}",
               "repo": "${{ github.event.repository.name }}",
-              "ref": "${{ env.BRANCH_NAME_BETA }}"
+              "ref": "${{ inputs.BRANCH_NAME_BETA }}"
             },
             "target": "production"
           }'
@@ -127,7 +125,7 @@ jobs:
               body: '✅ \'${{ github.workflow }}\' succeeded: ${{ env.MESSAGE_SUCCESS }}'
             })
   deploy-preview-prod:
-    if: ${{ github.ref == format('{0}{1}', 'refs/heads/', env.BRANCH_NAME_PROD) }}
+    if: ${{ github.ref == format('{0}{1}', 'refs/heads/', inputs.BRANCH_NAME_PROD) }}
     runs-on: ubuntu-latest
     steps:
       - id: deploy
