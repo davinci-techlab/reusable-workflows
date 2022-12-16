@@ -141,7 +141,7 @@ jobs:
                 "type": "github",
                 "org": "${{ github.event.repository.owner.login }}",
                 "repo": "${{ github.event.repository.name }}",
-                "ref": "${{ env.BRANCH_NAME_PROD }}"
+                "ref": "${{ inputs.BRANCH_NAME_PROD }}"
               }
             }')
             echo $RESPONSE | jq -c '{url, inspectorUrl}'
