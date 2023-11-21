@@ -61,7 +61,7 @@ jobs:
         working-directory: ./${{ inputs.application }}
 
       - name: Make zip file
-        run: zip -r ./${{ github.sha }}.zip .
+        run: zip --symlinks -r ./${{ github.sha }}.zip .
         shell: bash
         working-directory: ./${{ inputs.application }}
 
