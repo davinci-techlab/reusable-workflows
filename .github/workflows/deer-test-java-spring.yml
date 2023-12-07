@@ -5,6 +5,7 @@ on:
     inputs:
       module:
         required: false # module을 지정하지 않으면 전체 모듈에 대해 테스트를 수행한다.
+        default: ''
         type: string
 
 jobs:
@@ -26,4 +27,4 @@ jobs:
       - name: Test with Gradle
         uses: gradle/gradle-build-action@67421db6bd0bf253fb4bd25b31ebb98943c375e1
         with:
-          arguments: ${{ inputs.module == null && '' || format(':{0}:', inputs.module) }}check
+          arguments: ${{ inputs.module == '' && '' || format(':{0}:', inputs.module) }}check
