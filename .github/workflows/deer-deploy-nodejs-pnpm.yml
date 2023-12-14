@@ -84,6 +84,7 @@ jobs:
           --s3-location bucket=${{ inputs.s3_bucket_name }},bundleType=zip,key=${{ inputs.application }}/${{ inputs.profile }}/${{ github.sha }}.zip
 
       - name: Deploy Alert to Slack
+        if: ${{ success() }}
         run: |
           aws sns publish --topic-arn ${{ env.SNS_TOPIC_ARN_SLACK_ALERT }} '{
             "channel": "${{ vars.SLACK_ALERT_CHANNEL_ID }}",
@@ -92,7 +93,7 @@ jobs:
           echo "Alerted to slack"
 
       - name: Build Fail Alert to Slack
-        if: ${{ failure() }}
+        if: ${{ failure() || cancelled() }}
         run: |
           aws sns publish --topic-arn ${{ env.SNS_TOPIC_ARN_SLACK_ALERT }} '{
             "channel": "${{ vars.SLACK_ALERT_CHANNEL_ID }}",
