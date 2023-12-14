@@ -56,8 +56,12 @@ jobs:
         run: pnpm build-to-deploy
         shell: bash
 
+      - name: Prepare Installing production dependencies
+        run: rm -rf node_modules && echo 'symlink=false' >> .npmrc && echo 'node-linker=hoisted' >> .npmrc
+        shell: bash
+
       - name: Install production dependencies
-        run: rm -rf node_modules && echo 'symlink=false' >> .npmrc && echo 'node-linker=hoisted' >> .npmrc && pnpm install --prod --shamefully-hoist
+        run: pnpm install --prod --shamefully-hoist
         shell: bash
 
       - name: Make zip file
