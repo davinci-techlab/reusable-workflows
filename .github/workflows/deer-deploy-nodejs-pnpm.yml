@@ -88,7 +88,7 @@ jobs:
       - name: Code Deploy
         run: >
           aws deploy create-deployment
-          --application-name ${{ inputs.service }}-${{ inputs.profile }}
+          --application-name ${{ inputs.service }}-${{ inputs.profile == 'production' && 'prod' || inputs.profile }}
           --deployment-group-name ${{ inputs.application }}
           --s3-location bucket=${{ inputs.s3_bucket_name }},bundleType=zip,key=${{ inputs.application }}/${{ inputs.profile }}/${{ github.sha }}.zip
 
