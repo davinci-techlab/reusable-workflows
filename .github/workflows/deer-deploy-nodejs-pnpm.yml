@@ -45,7 +45,7 @@ jobs:
             "channel": "${{ env.SLACK_ALERT_CHANNEL_ID }}",
             "text": ":mega: 빌드 시작 ${{ env.ACTIONS_META }}"
           }'
-          echo "Alerted to slack"       
+          echo "Alerted to slack"
 
       - uses: actions/checkout@v3
 
