@@ -67,9 +67,9 @@ jobs:
       - name: Upload to S3
         run: aws s3 cp --region ap-northeast-2 ./${{ github.sha }}.zip s3://${{ inputs.s3_bucket_name }}/${{ inputs.application }}/${{ inputs.profile }}/${{ github.sha }}.zip
 
-#      - name: Code Deploy
-#        run: >
-#          aws deploy create-deployment
-#          --application-name ${{ inputs.service }}-${{ inputs.profile }}
-#          --deployment-group-name ${{ inputs.application }}
-#          --s3-location bucket=${{ inputs.s3_bucket_name }},bundleType=zip,key=${{ inputs.application }}/${{ inputs.profile }}/${{ github.sha }}.zip
+      - name: Code Deploy
+        run: >
+          aws deploy create-deployment
+          --application-name ${{ inputs.service }}-${{ inputs.profile }}
+          --deployment-group-name ${{ inputs.application }}
+          --s3-location bucket=${{ inputs.s3_bucket_name }},bundleType=zip,key=${{ inputs.application }}/${{ inputs.profile }}/${{ github.sha }}.zip
