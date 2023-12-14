@@ -15,9 +15,6 @@ on:
       s3_bucket_name:
         required: true
         type: string
-      ssm_env_path:
-        required: true
-        type: string
     secrets:
       AWS_ACCESS_KEY_ID:
         required: true
