@@ -24,7 +24,7 @@ on:
 env:
   SNS_TOPIC_ARN_SLACK_ALERT: ${{ (inputs.profile == 'prod' || inputs.profile == 'production') && vars.SNS_TOPIC_ARN_SLACK_ALERT_PROD || vars.SNS_TOPIC_ARN_SLACK_ALERT_STAGING }}
   SLACK_ALERT_CHANNEL_ID: ${{ (inputs.profile == 'prod' || inputs.profile == 'production') && vars.SLACK_DEPLOY_CHANNEL_ID_PROD || vars.SLACK_DEPLOY_CHANNEL_ID_STAGING }}
-  ACTIONS_META: '*[${{ inputs.application }}]* to *[${{ inputs.profile }}]* by ${{ github.actor }}. \n * <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }} | Github Action> \n * <https://ap-northeast-2.console.aws.amazon.com/codesuite/codedeploy/applications/${{ inputs.service }}-${{ inputs.profile }}/deployment-groups/${{ inputs.application }} | Code Deploy> \n * <${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }} | ${{ github.sha }}>'
+  ACTIONS_META: '*[${{ inputs.application }}]* to *[${{ inputs.profile }}]* by ${{ github.actor }}. \n * <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }} | Github Actions> \n * <https://ap-northeast-2.console.aws.amazon.com/codesuite/codedeploy/applications/${{ inputs.service }}-${{ inputs.profile }}/deployment-groups/${{ inputs.application }} | Code Deploy> \n * <${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }} | ${{ github.sha }}>'
 
 jobs:
   build:
