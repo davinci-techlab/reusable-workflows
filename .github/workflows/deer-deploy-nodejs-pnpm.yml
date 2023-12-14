@@ -24,7 +24,7 @@ on:
 env:
   SNS_TOPIC_ARN_SLACK_ALERT: ${{ (inputs.profile == 'prod' || inputs.profile == 'production') && vars.SNS_TOPIC_ARN_SLACK_ALERT_PROD || vars.SNS_TOPIC_ARN_SLACK_ALERT_STAGING }}
   SLACK_ALERT_CHANNEL_ID: ${{ (inputs.profile == 'prod' || inputs.profile == 'production') && vars.SLACK_DEPLOY_CHANNEL_ID_PROD || vars.SLACK_DEPLOY_CHANNEL_ID_STAGING }}
-  ACTIONS_META: '*[${{ inputs.application }}]* to *[${{ inputs.profile }}]* by ${{ github.actor }}. \n * Commit Hash: <${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }} | ${{ github.sha }}> \n * <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }} | Github Action> \n * <https://ap-northeast-2.console.aws.amazon.com/codesuite/codedeploy/applications/${{ inputs.service }}-${{ inputs.profile }}/deployment-groups/${{ inputs.application }} | Code Deploy>'
+  ACTIONS_META: '*[${{ inputs.application }}]* to *[${{ inputs.profile }}]* by ${{ github.actor }}. \n * <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }} | Github Action> \n * <https://ap-northeast-2.console.aws.amazon.com/codesuite/codedeploy/applications/${{ inputs.service }}-${{ inputs.profile }}/deployment-groups/${{ inputs.application }} | Code Deploy> \n * <${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }} | ${{ github.sha }}>'
 
 jobs:
   build:
@@ -49,7 +49,14 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ap-northeast-2
 
-      - run: exit 1
+      - name: Deploy Alert to Slack
+        if: ${{ success() }}
+        run: |
+          aws sns publish --topic-arn ${{ env.SNS_TOPIC_ARN_SLACK_ALERT }} --message '{
+            "channel": "${{ env.SLACK_ALERT_CHANNEL_ID }}",
+            "text": ":mega: 빌드 시작 ${{ env.ACTIONS_META }}"
+          }'
+          echo "Alerted to slack"       
 
       - name: Install dependencies
         run: pnpm install
@@ -90,7 +97,7 @@ jobs:
         run: |
           aws sns publish --topic-arn ${{ env.SNS_TOPIC_ARN_SLACK_ALERT }} --message '{
             "channel": "${{ env.SLACK_ALERT_CHANNEL_ID }}",
-            "text": ":mega: 배포 시작 ${{ env.ACTIONS_META }} - "
+            "text": ":mega: 빌드 성공! 배포 시작 ${{ env.ACTIONS_META }}"
           }'
           echo "Alerted to slack"
 
