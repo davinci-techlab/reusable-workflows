@@ -92,15 +92,6 @@ jobs:
           --deployment-group-name ${{ inputs.application }}
           --s3-location bucket=${{ inputs.s3_bucket_name }},bundleType=zip,key=${{ inputs.application }}/${{ inputs.profile }}/${{ github.sha }}.zip
 
-      - name: Deploy Alert to Slack
-        if: ${{ success() }}
-        run: |
-          aws sns publish --topic-arn ${{ env.SNS_TOPIC_ARN_SLACK_ALERT }} --message '{
-            "channel": "${{ env.SLACK_ALERT_CHANNEL_ID }}",
-            "text": ":mega: 빌드 성공! 배포 시작 ${{ env.ACTIONS_META }}"
-          }'
-          echo "Alerted to slack"
-
       - name: Build Fail Alert to Slack
         if: ${{ failure() || cancelled() }}
         run: |

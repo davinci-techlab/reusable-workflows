@@ -24,6 +24,11 @@ on:
       AWS_SECRET_ACCESS_KEY:
         required: true
 
+env:
+  SNS_TOPIC_ARN_SLACK_ALERT: ${{ (inputs.profile == 'prod' || inputs.profile == 'production') && vars.SNS_TOPIC_ARN_SLACK_ALERT_PROD || vars.SNS_TOPIC_ARN_SLACK_ALERT_STAGING }}
+  SLACK_ALERT_CHANNEL_ID: ${{ (inputs.profile == 'prod' || inputs.profile == 'production') && vars.SLACK_DEPLOY_CHANNEL_ID_PROD || vars.SLACK_DEPLOY_CHANNEL_ID_STAGING }}
+  ACTIONS_META: '*[${{ inputs.application }}]* to *[${{ inputs.profile }}]* by ${{ github.actor }}. \n:package: <https://ap-northeast-2.console.aws.amazon.com/codesuite/codedeploy/applications/${{ inputs.service }}-${{ inputs.profile }}/deployment-groups/${{ inputs.application }} | CodeDeploy> \n:github: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }} | Github Actions> \n:tag: <${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }} | ${{ github.sha }}>'
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -77,3 +82,12 @@ jobs:
           --application-name ${{ inputs.service }}-${{ inputs.profile }}
           --deployment-group-name ${{ inputs.application }}
           --s3-location bucket=${{ inputs.s3_bucket_name }},bundleType=zip,key=${{ inputs.application }}/${{ github.sha }}.zip
+
+      - name: Build Fail Alert to Slack
+        if: ${{ failure() || cancelled() }}
+        run: |
+          aws sns publish --topic-arn ${{ env.SNS_TOPIC_ARN_SLACK_ALERT }} --message '{
+            "channel": "${{ env.SLACK_ALERT_CHANNEL_ID }}",
+            "text": ":x: 빌드 실패 ${{ env.ACTIONS_META }}"
+          }'
+          echo "Alerted to slack"
