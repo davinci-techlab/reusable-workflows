@@ -57,7 +57,7 @@ jobs:
         shell: bash
 
       - name: Install production dependencies
-        run: rm -rf node_modules && pnpm install --production
+        run: rm -rf node_modules && pnpm install --prod
         shell: bash
 
       - name: Make zip file
