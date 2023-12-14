@@ -49,11 +49,11 @@ jobs:
         shell: bash
 
       - name: Generate environment file
-        run: node infra/scripts/print-env.js /${{ inputs.application }}/${{ inputs.profile }}
+        run: node infra/scripts/print-env.js /${{ inputs.application }}/${{ inputs.profile }} > .env
         shell: bash
 
       - name: Build
-        run: pnpm build
+        run: pnpm build-to-deploy
         shell: bash
 
       - name: Install production dependencies
