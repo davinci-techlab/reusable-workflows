@@ -24,7 +24,7 @@ on:
 env:
   SNS_TOPIC_ARN_SLACK_ALERT: ${{ (inputs.profile == 'prod' || inputs.profile == 'production') && vars.SNS_TOPIC_ARN_SLACK_ALERT_PROD || vars.SNS_TOPIC_ARN_SLACK_ALERT_STAGING }}
   SLACK_ALERT_CHANNEL_ID: ${{ (inputs.profile == 'prod' || inputs.profile == 'production') && vars.SLACK_DEPLOY_CHANNEL_ID_PROD || vars.SLACK_DEPLOY_CHANNEL_ID_STAGING }}
-  ACTIONS_META: '*${{ inputs.application }}* to *${{ inputs.profile }}* by ${{ github.actor }}. Commit hash: (${{ github.sha }}) \n ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}'
+  ACTIONS_META: '*[${{ inputs.application }}]* to *[${{ inputs.profile }}]* by ${{ github.actor }}. Commit hash: (${{ github.sha }}) \n - <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }} | Github Action> \n - <https://ap-northeast-2.console.aws.amazon.com/codesuite/codedeploy/applications/${{ inputs.service }}-${{ inputs.profile }}/deployment-groups/${{ inputs.application }} | Code Deploy>'
 
 jobs:
   build:
@@ -88,7 +88,7 @@ jobs:
         run: |
           aws sns publish --topic-arn ${{ env.SNS_TOPIC_ARN_SLACK_ALERT }} --message '{
             "channel": "${{ env.SLACK_ALERT_CHANNEL_ID }}",
-            "text": ":mega: 배포 시작 ${{ env.ACTIONS_META }}"
+            "text": ":mega: 배포 시작 ${{ env.ACTIONS_META }} - "
           }'
           echo "Alerted to slack"
 
