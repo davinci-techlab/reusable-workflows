@@ -1,0 +1,78 @@
+name: deer-deploy-nodejs-pnpm
+
+on:
+  workflow_call:
+    inputs:
+      service:
+        required: true
+        type: string
+      application:
+        required: true
+        type: string
+      profile:
+        required: true
+        type: string
+      s3_bucket_name:
+        required: true
+        type: string
+      ssm_env_path:
+        required: true
+        type: string
+    secrets:
+      AWS_ACCESS_KEY_ID:
+        required: true
+      AWS_SECRET_ACCESS_KEY:
+        required: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: 20
+
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-northeast-2
+
+      - name: Install dependencies
+        run: pnpm install
+        shell: bash
+
+      - name: Generate environment file
+        run: node infra/scripts/print-env.js /${{ inputs.application }}/${{ inputs.profile }}
+        shell: bash
+
+      - name: Build
+        run: pnpm build
+        shell: bash
+
+      - name: Install production dependencies
+        run: rm -rf node_modules && pnpm install --production
+        shell: bash
+
+      - name: Make zip file
+        run: zip --symlinks -r ./${{ github.sha }}.zip . > /dev/null
+        shell: bash
+
+      - name: Upload to S3
+        run: aws s3 cp --region ap-northeast-2 ./${{ github.sha }}.zip s3://${{ inputs.s3_bucket_name }}/${{ inputs.application }}/${{ inputs.profile }}/${{ github.sha }}.zip
+
+#      - name: Code Deploy
+#        run: >
+#          aws deploy create-deployment
+#          --application-name ${{ inputs.service }}-${{ inputs.profile }}
+#          --deployment-group-name ${{ inputs.application }}
+#          --s3-location bucket=${{ inputs.s3_bucket_name }},bundleType=zip,key=${{ inputs.application }}/${{ inputs.profile }}/${{ github.sha }}.zip
