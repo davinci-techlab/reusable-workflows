@@ -44,7 +44,7 @@ jobs:
               tr -d '\n')
           message=${commit_message:0:100} # 100자 제한
           echo "received commit message='$commit_message'"
-          echo "commit_message=$commit_message" >> $GITHUB_OUTPUT
+          echo "message=$message" >> $GITHUB_OUTPUT
 
       - name: Set Meta Message
         run: |
