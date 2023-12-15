@@ -41,7 +41,7 @@ jobs:
             https://api.github.com/repos/${{ github.repository }}/commits/${{ github.sha }} | \
               jq '.commit.message' | \
               sed 's/"//g' | \
-              sed 's/\\.*//g' | \
+              sed 's/\\n.*//g' | \
               tr -d '\n')
           message=${commit_message:0:100} # 100자 제한
           echo "received commit message='$commit_message'"
