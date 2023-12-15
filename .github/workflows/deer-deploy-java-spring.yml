@@ -56,7 +56,7 @@ jobs:
 
       - name: Set Meta Message
         run: |
-          ACTIONS_META='*<${{ github.server_url }}/${{ github.repository }} | [${{ inputs.application }}]>* to *[${{ inputs.profile }}]* by ${{ github.actor }}. \n:package: <https://ap-northeast-2.console.aws.amazon.com/codesuite/codedeploy/applications/${{ inputs.service }}-${{ inputs.profile }}/deployment-groups/${{ inputs.application }} | CodeDeploy> \n:github: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }} | Github Actions> \n:tag: <${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }} | [${{ env.BRANCH_NAME }}] ${{ steps.get_commit_message.outputs.message }}>'
+          ACTIONS_META='*<${{ github.server_url }}/${{ github.repository }} | [${{ inputs.application }}]>* to *[${{ inputs.profile }}]* by ${{ github.actor }}. \n:package: <https://ap-northeast-2.console.aws.amazon.com/codesuite/codedeploy/applications/${{ inputs.service }}-${{ inputs.profile == 'production' && 'prod' || inputs.profile }}/deployment-groups/${{ inputs.application }} | CodeDeploy> \n:github: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }} | Github Actions> \n:tag: <${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }} | [${{ env.BRANCH_NAME }}] ${{ steps.get_commit_message.outputs.message }}>'
           echo "ACTIONS_META=$ACTIONS_META" >> $GITHUB_ENV
 
       - name: Configure AWS credentials
