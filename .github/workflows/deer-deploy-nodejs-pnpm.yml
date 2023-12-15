@@ -40,7 +40,7 @@ jobs:
             https://api.github.com/repos/${{ github.repository }}/commits | \
               jq -c '.[] | select(.sha | contains("${{ github.sha }}"))' | \
               jq '.commit.message' | \
-              sed 's/^"\(.*\)"$/\1/g' | \# jq로 받은 결과값에 ""가 붙어있어서 제거해준다.
+              sed 's/^"\(.*\)"$/\1/g' | \
               tr -d '\n')
           message=${commit_message:0:100} # 100자 제한
           echo "received commit message='$commit_message'"
