@@ -31,6 +31,7 @@ env:
   SNS_TOPIC_ARN_SLACK_ALERT: ${{ (inputs.profile == 'prod' || inputs.profile == 'production') && vars.SNS_TOPIC_ARN_SLACK_ALERT_PROD || vars.SNS_TOPIC_ARN_SLACK_ALERT_STAGING }}
   SLACK_ALERT_CHANNEL_ID: ${{ (inputs.profile == 'prod' || inputs.profile == 'production') && vars.SLACK_DEPLOY_CHANNEL_ID_PROD || vars.SLACK_DEPLOY_CHANNEL_ID_STAGING }}
   BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
+  WORKING_DIRECTORY: ./${{ inputs.single_module == true && '' || inputs.application) }}
 
 jobs:
   build:
@@ -98,16 +99,16 @@ jobs:
           echo "APPLICATION=${{ inputs.application }}" >> ./.env
           echo "PROFILE=${{ inputs.profile }}" >> ./.env
           echo "JAVA_MEMORY=${{ inputs.java-memory }}" >> ./.env
-        working-directory: ./${{ inputs.single_module == true && '' || inputs.application) }}
+        working-directory: ${{ env.WORKING_DIRECTORY }}
 
       - name: Make zip file
         run: zip --symlinks -r ./${{ github.sha }}.zip . > /dev/null
         shell: bash
-        working-directory: ./${{ inputs.single_module == true && '' || inputs.application) }}
+        working-directory: ${{ env.WORKING_DIRECTORY }}
 
       - name: Upload to S3
         run: aws s3 cp --region ap-northeast-2 ./${{ github.sha }}.zip s3://${{ inputs.s3_bucket_name }}/${{ inputs.application }}/${{ github.sha }}.zip
-        working-directory: ./${{ inputs.single_module == true && '' || inputs.application) }}
+        working-directory: ${{ env.WORKING_DIRECTORY }}
 
       - name: Code Deploy
         run: >
