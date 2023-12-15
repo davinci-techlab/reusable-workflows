@@ -18,6 +18,9 @@ on:
       java-memory:
         required: true
         type: string
+      single_module:
+        required: false
+        type: boolean
     secrets:
       AWS_ACCESS_KEY_ID:
         required: true
@@ -87,7 +90,7 @@ jobs:
         env:
           ENABLE_DOCS: ${{ inputs.profile == 'staging' }}
         with:
-          arguments: :${{ inputs.application }}:build
+          arguments: ${{ inputs.single_module == true && '' || format(':{0}', inputs.application) }}:build
 
       - name: Generate environment file
         run: |
@@ -95,16 +98,16 @@ jobs:
           echo "APPLICATION=${{ inputs.application }}" >> ./.env
           echo "PROFILE=${{ inputs.profile }}" >> ./.env
           echo "JAVA_MEMORY=${{ inputs.java-memory }}" >> ./.env
-        working-directory: ./${{ inputs.application }}
+        working-directory: ./${{ inputs.single_module == true && '' || inputs.application) }}
 
       - name: Make zip file
         run: zip --symlinks -r ./${{ github.sha }}.zip . > /dev/null
         shell: bash
-        working-directory: ./${{ inputs.application }}
+        working-directory: ./${{ inputs.single_module == true && '' || inputs.application) }}
 
       - name: Upload to S3
         run: aws s3 cp --region ap-northeast-2 ./${{ github.sha }}.zip s3://${{ inputs.s3_bucket_name }}/${{ inputs.application }}/${{ github.sha }}.zip
-        working-directory: ./${{ inputs.application }}
+        working-directory: ./${{ inputs.single_module == true && '' || inputs.application) }}
 
       - name: Code Deploy
         run: >
