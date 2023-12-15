@@ -91,7 +91,7 @@ jobs:
         env:
           ENABLE_DOCS: ${{ inputs.profile == 'staging' }}
         with:
-          arguments: ${{ inputs.single_module == true && '' || format(':{0}', inputs.application) }}:build
+          arguments: ${{ inputs.single_module == true && ':' || format(':{0}:', inputs.application) }}build
 
       - name: Generate environment file
         run: |
