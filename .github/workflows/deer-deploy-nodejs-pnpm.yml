@@ -41,6 +41,7 @@ jobs:
               jq -c '.[] | select(.sha | contains("${{ github.sha }}"))' | \
               jq '.commit.message' | \
               sed 's/^"\(.*\)"$/\1/g' | \
+              sed 's/\\.*//g' | \
               tr -d '\n')
           message=${commit_message:0:100} # 100자 제한
           echo "received commit message='$commit_message'"
