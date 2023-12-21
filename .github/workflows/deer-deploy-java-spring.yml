@@ -42,12 +42,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Fail when prod deploy to non prod branch
-        if: ${{ inputs.profile == 'prod' || inputs.profile == 'production' }} && ${{ env.BRANCH_NAME != inputs.prod_branch_name }}
-        run: |
-          echo "운영환경 배포는 ${{ inputs.prod_branch_name }} 브랜치에서만 가능합니다."
-          exit 1
-
       - name: Get commit message
         id: get_commit_message
         run: |
@@ -75,6 +69,12 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ap-northeast-2
+
+      - name: Fail when prod deploy to non prod branch
+        if: ${{ inputs.profile == 'prod' || inputs.profile == 'production' }} && ${{ env.BRANCH_NAME != inputs.prod_branch_name }}
+        run: |
+          echo "운영환경 배포는 ${{ inputs.prod_branch_name }} 브랜치에서만 가능합니다."
+          exit 1
 
       - name: Deploy Alert to Slack
         if: ${{ success() }}
