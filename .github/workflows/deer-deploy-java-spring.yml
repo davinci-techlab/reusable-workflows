@@ -71,7 +71,7 @@ jobs:
           aws-region: ap-northeast-2
 
       - name: Fail when prod deploy to non prod branch
-        if: ${{ inputs.profile == 'prod' || inputs.profile == 'production' }} && ${{ env.BRANCH_NAME != inputs.prod_branch_name }}
+        if: ${{ (inputs.profile == 'prod' || inputs.profile == 'production') && env.BRANCH_NAME != inputs.prod_branch_name }}
         run: |
           echo "운영환경 배포는 ${{ inputs.prod_branch_name }} 브랜치에서만 가능합니다. 현재 브랜치: ${{ env.BRANCH_NAME }}. eval: ${{ env.BRANCH_NAME != inputs.prod_branch_name }}"
           exit 1
