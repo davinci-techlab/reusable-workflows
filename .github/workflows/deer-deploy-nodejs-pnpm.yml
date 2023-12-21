@@ -15,6 +15,10 @@ on:
       s3_bucket_name:
         required: true
         type: string
+      prod_branch_name:
+        required: false
+        type: string
+        default: release
     secrets:
       AWS_ACCESS_KEY_ID:
         required: true
