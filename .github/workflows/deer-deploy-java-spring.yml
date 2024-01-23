@@ -117,7 +117,7 @@ jobs:
         working-directory: ${{ env.WORKING_DIRECTORY }}
 
       - name: Upload to S3
-        run: aws s3 cp --region ap-northeast-2 ./${{ github.sha }}.zip s3://${{ inputs.s3_bucket_name }}/${{ inputs.application }}/${{ github.sha }}.zip
+        run: aws s3 cp --region ap-northeast-2 ./${{ github.sha }}.zip s3://${{ inputs.s3_bucket_name }}/${{ inputs.application }}/${{ inputs.profile }}/${{ github.sha }}.zip
         working-directory: ${{ env.WORKING_DIRECTORY }}
 
       - name: Code Deploy
@@ -125,7 +125,7 @@ jobs:
           aws deploy create-deployment
           --application-name ${{ inputs.service }}-${{ inputs.profile }}
           --deployment-group-name ${{ inputs.application }}
-          --s3-location bucket=${{ inputs.s3_bucket_name }},bundleType=zip,key=${{ inputs.application }}/${{ github.sha }}.zip
+          --s3-location bucket=${{ inputs.s3_bucket_name }},bundleType=zip,key=${{ inputs.application }}/${{ inputs.profile }}/${{ github.sha }}.zip
 
       - name: Build Fail Alert to Slack
         if: ${{ failure() || cancelled() }}
